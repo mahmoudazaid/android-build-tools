@@ -41,9 +41,9 @@ jobs:
     - name: Extract version from Dockerfile
       id: extract_version
       run: |
-        VERSION=$(grep -m 1 'LABEL version' Dockerfile | cut -d '=' -f2 | tr -d '"')
+        VERSION=$(grep -m 1 'LABEL BUILD_TOOLS' Dockerfile | cut -d '=' -f2 | tr -d '"')
         if [ -z "$VERSION" ]; then
-          VERSION=$(grep -m 1 'ENV VERSION' Dockerfile | cut -d '=' -f2 | tr -d '"')
+          VERSION=$(grep -m 1 'ENV BUILD_TOOLS' Dockerfile | cut -d '=' -f2 | tr -d '"')
         fi
         echo "VERSION=$VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV

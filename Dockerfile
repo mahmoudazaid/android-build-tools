@@ -1,6 +1,6 @@
 FROM amd64/openjdk:24-jdk-slim
 
-LABEL version=${BUILD_TOOLS}
+ENV BUILD_TOOLS="34.0.0"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -21,7 +21,6 @@ RUN apt update && apt install --no-install-recommends -y \
 #==============================
 # Android SDK ARGS
 #==============================
-ARG BUILD_TOOLS="34.0.0"
 ARG ANDROID_CMD="commandlinetools-linux-11076708_latest.zip"
 ARG BUILD_TOOL="build-tools;${BUILD_TOOLS}"
 ARG ANDROID_SDK_PACKAGES="${BUILD_TOOL} platform-tools emulator"
