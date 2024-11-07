@@ -1,18 +1,64 @@
-name: Docker Image CI
+name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main  
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag for the Docker image'
+        required: true
+        default: 'latest'
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
+    env:
+      DOCKER_USERNAME: "mahmoudazaid"
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag android-build-tools:latest
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/docker
+        key: ${{ runner.os }}-docker-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-docker-
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ env.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Extract version from Dockerfile
+      id: extract_version
+      run: |
+        VERSION=$(grep -m 1 'LABEL version' Dockerfile | cut -d '=' -f2 | tr -d '"')
+        if [ -z "$VERSION" ]; then
+          VERSION=$(grep -m 1 'ENV VERSION' Dockerfile | cut -d '=' -f2 | tr -d '"')
+        fi
+        echo "VERSION=$VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Build Docker image
+      run: |
+        docker build -t ${{ env.DOCKER_USERNAME }}/android:${{ env.VERSION }} .
+        docker build -t ${{ env.DOCKER_USERNAME }}/android:latest .
+
+
+    - name: Push Docker image
+      run: |
+        docker push ${{ env.DOCKER_USERNAME }}/android:${{ env.VERSION }}
+        docker push ${{ env.DOCKER_USERNAME }}/android:latest
+
+    - name: Clean up Docker images
+      run: |
+        docker image prune -af

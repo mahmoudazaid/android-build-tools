@@ -36,6 +36,6 @@ fi
 # Clean up SDK manager cache
 echo "Cleaning up SDK manager files..."
 sdkmanager --update
-rm -rf /tmp/*  # Clean up temporary installation files
+rm -rf /tmp/*  
 
 echo "Android SDK packages installed successfully."
