@@ -4,20 +4,6 @@ ENV BUILD_TOOLS="35.0.0"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-WORKDIR /
-
-SHELL ["/bin/bash", "-c"]
-
-#=============================
-# Install Dependencies
-#=============================
-RUN apt update && apt install --no-install-recommends -y \
-    tzdata curl sudo wget unzip bzip2 libdrm-dev libxkbcommon-dev \
-    libgbm-dev libasound-dev libnss3 libxcursor1 libpulse-dev \
-    libxshmfence-dev xauth xvfb x11vnc fluxbox wmctrl libdbus-glib-1-2 \
-    iputils-ping net-tools && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
 #==============================
 # Android SDK ARGS
 #==============================
@@ -32,6 +18,20 @@ ENV ANDROID_HOME="/opt/android-sdk"
 ENV ANDROID_SDK_HOME="$ANDROID_HOME"
 ENV PATH "$PATH:$ANDROID_HOME/cmdline-tools/tools:$ANDROID_HOME/cmdline-tools/tools/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/${BUILD_TOOLS}"
 ENV DOCKER="true"
+
+WORKDIR /
+
+SHELL ["/bin/bash", "-c"]
+
+#=============================
+# Install Dependencies
+#=============================
+RUN apt update && apt install --no-install-recommends -y \
+    tzdata curl sudo wget unzip bzip2 libdrm-dev libxkbcommon-dev \
+    libgbm-dev libasound-dev libnss3 libxcursor1 libpulse-dev \
+    libxshmfence-dev xauth xvfb x11vnc fluxbox wmctrl libdbus-glib-1-2 \
+    iputils-ping net-tools && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 #=========================
 # Copy Scripts to root
