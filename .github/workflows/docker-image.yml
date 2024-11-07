@@ -50,14 +50,14 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t ${{ env.DOCKER_USERNAME }}/android:${{ env.VERSION }} .
-        docker build -t ${{ env.DOCKER_USERNAME }}/android:latest .
+        docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }} .
+        docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:latest .
 
 
     - name: Push Docker image
       run: |
-        docker push ${{ env.DOCKER_USERNAME }}/android:${{ env.VERSION }}
-        docker push ${{ env.DOCKER_USERNAME }}/android:latest
+        docker push ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }}
+        docker push ${{ env.DOCKER_USERNAME }}/android-build-tools:latest
 
     - name: Clean up Docker images
       run: |
