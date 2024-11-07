@@ -29,6 +29,7 @@ ARG ANDROID_SDK_PACKAGES="${BUILD_TOOL} platform-tools emulator"
 # Set Environment Variables
 #==============================
 ENV ANDROID_HOME="/opt/android-sdk"
+ENV ANDROID_SDK_HOME="$ANDROID_HOME"
 ENV PATH "$PATH:$ANDROID_HOME/cmdline-tools/tools:$ANDROID_HOME/cmdline-tools/tools/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/${BUILD_TOOLS}"
 ENV DOCKER="true"
 
