@@ -19,13 +19,10 @@ jobs:
     env:
       DOCKER_USERNAME: "mahmoudazaid"
       DOCKER_SCOUT_VERSION: "1.15.0" # Docker Scout version
-      CHECKOUT_ACTION_VERSION: "v4" # actions/checkout version
-      BUILDX_ACTION_VERSION: "v3" # docker/setup-buildx-action version
-      LOGIN_ACTION_VERSION: "v3" # docker/login-action version
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@${{ env.CHECKOUT_ACTION_VERSION }}
+      uses: actions/checkout@v4
 
     - name: Set version and build tools version
       id: set_version
@@ -46,7 +43,7 @@ jobs:
         echo "IMAGE_TAG=${{ env.VERSION }}" >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@${{ env.BUILDX_ACTION_VERSION }}
+      uses: docker/setup-buildx-action@v3
 
     - name: Cache Docker layers
       uses: actions/cache@v4
@@ -57,7 +54,7 @@ jobs:
           ${{ runner.os }}-docker-
 
     - name: Log in to Docker Hub
-      uses: docker/login-action@${{ env.LOGIN_ACTION_VERSION }}
+      uses: docker/login-action@v3
       with:
         username: ${{ env.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
