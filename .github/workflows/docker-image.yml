@@ -10,19 +10,29 @@ on:
         description: 'Version tag for the Docker image'
         required: true
         default: 'latest'
+  repository_dispatch:
+    types: [docker-image-updated]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       DOCKER_USERNAME: "mahmoudazaid"
+      DOCKER_SCOUT_VERSION: "1.15.0" # Docker Scout version
+      ANDROID_BUILD_TOOLS_VERSION: "${{ env.VERSION }}" # Set Android Build Tools version to match Dockerfile version
+      IMAGE_TAG: "${{ github.event.inputs.version }}" # Default to latest from the workflow dispatch
+      VERSION: "${{ env.IMAGE_TAG }}" # Version from dispatch or input
+      BUILD_TOOLS_VERSION: "${{ github.event.client_payload.build_tools_version }}" # Extracted build-tools version from the payload
+      CHECKOUT_ACTION_VERSION: "v4" # actions/checkout version
+      BUILDX_ACTION_VERSION: "v3" # docker/setup-buildx-action version
+      LOGIN_ACTION_VERSION: "v3" # docker/login-action version
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@${{ env.CHECKOUT_ACTION_VERSION }}
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@${{ env.BUILDX_ACTION_VERSION }}
 
     - name: Cache Docker layers
       uses: actions/cache@v4
@@ -33,7 +43,7 @@ jobs:
           ${{ runner.os }}-docker-
 
     - name: Log in to Docker Hub
-      uses: docker/login-action@v3
+      uses: docker/login-action@${{ env.LOGIN_ACTION_VERSION }}
       with:
         username: ${{ env.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
@@ -60,12 +70,11 @@ jobs:
         docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }} .
         docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:latest .
 
-    # Install Docker Scout CLI
-    - name: Install Docker Scout
+    - name: Install Docker Scout v${{ env.DOCKER_SCOUT_VERSION }}
       run: |
-        curl -fsSL https://github.com/docker/scout/releases/download/v1.15.0/scout_1.15.0_linux_amd64.tar.gz | tar -xzv -C /usr/local/bin
+        curl -fsSL https://github.com/docker/scout-cli/releases/download/v${{ env.DOCKER_SCOUT_VERSION }}/docker-scout_${{ env.DOCKER_SCOUT_VERSION }}_linux_amd64.tar.gz | tar xz -C /usr/local/bin
+        scout --version  # Confirm installation
 
-    # Run Docker Scout to scan the image for vulnerabilities
     - name: Run Docker Scout to scan the image for vulnerabilities
       run: |
         docker scout start ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }}
