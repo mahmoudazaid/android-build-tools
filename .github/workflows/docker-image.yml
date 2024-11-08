@@ -78,12 +78,12 @@ jobs:
       run: |
         curl -fsSL ${{ env.DOCKER_SCOUT }} | tar xz -C /usr/local/bin
         sudo ln -s /usr/local/bin/docker-scout /usr/bin/scout
-        scout help
+        docker-scout version
 
     - name: Run Docker Scout to scan the image for vulnerabilities
       run: |
-        docker scout start ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }}
-        docker scout start ${{ env.DOCKER_USERNAME }}/android-build-tools:latest
+        docker-scout start ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }}
+        docker-scout start ${{ env.DOCKER_USERNAME }}/android-build-tools:latest
 
     - name: Push Docker image
       run: |
