@@ -62,3 +62,15 @@ jobs:
     - name: Clean up Docker images
       run: |
         docker image prune -af
+
+    # New Step to Trigger Another GitHub Repo
+    - name: Trigger Another Repository Workflow
+      if: success()
+      run: |
+        curl -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.TRIGGER_REPO_TOKEN }}" \
+          https://api.github.com/repos/target-owner/target-repo/dispatches \
+          -d '{"event_type": "triggered-from-build", "client_payload": {"version": "${{ env.VERSION }}"}}'
+      env:
+        TARGET_REPO: "https://api.github.com/mahmoudazaid/android-images"
