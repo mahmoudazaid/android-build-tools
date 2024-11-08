@@ -82,8 +82,8 @@ jobs:
 
     - name: Run Docker Scout to scan the image for vulnerabilities
       run: |
-        docker-scout image scan ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }}
-        docker-scout image scan ${{ env.DOCKER_USERNAME }}/android-build-tools:latest
+        docker-scout cves ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }}
+        docker-scout cves ${{ env.DOCKER_USERNAME }}/android-build-tools:latest
 
     - name: Push Docker image
       run: |
