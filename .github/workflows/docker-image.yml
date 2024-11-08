@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_USERNAME: "mahmoudazaid"
-      DOCKER_SCOUT_VERSION: "1.15.0" # Docker Scout version
-
+      DOCKER_SCOUT: https://github.com/docker/scout-cli/releases/download/v1.15.0/docker-scout_1.15.0_linux_amd64.tar.gz
+      
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -74,9 +74,10 @@ jobs:
         docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }} .
         docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:latest .
 
-    - name: Install Docker Scout v${{ env.DOCKER_SCOUT_VERSION }}
+    - name: Install Docker Scout v${{ env.DOCKER_SCOUT }}
       run: |
-        curl -fsSL https://github.com/docker/scout-cli/releases/download/v${{ env.DOCKER_SCOUT_VERSION }}/docker-scout_${{ env.DOCKER_SCOUT_VERSION }}_linux_amd64.tar.gz | tar xz -C /usr/local/bin
+        curl -fsSL ${{ env.DOCKER_SCOUT }} | tar xz -C /usr/local/bin
+        echo "/usr/local/bin" >> $GITHUB_PATH
         scout --version  # Confirm installation
 
     - name: Run Docker Scout to scan the image for vulnerabilities
