@@ -77,7 +77,7 @@ jobs:
     - name: Install Docker Scout v${{ env.DOCKER_SCOUT }}
       run: |
         curl -fsSL ${{ env.DOCKER_SCOUT }} | tar xz -C /usr/local/bin
-        echo "/usr/local/bin" >> $GITHUB_PATH
+        sudo ln -s /usr/local/bin/docker-scout /usr/bin/scout
         scout --version  # Confirm installation
 
     - name: Run Docker Scout to scan the image for vulnerabilities
