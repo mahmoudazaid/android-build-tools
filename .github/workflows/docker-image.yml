@@ -19,13 +19,13 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
     - name: Cache Docker layers
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.cache/docker
         key: ${{ runner.os }}-docker-${{ github.sha }}
@@ -48,11 +48,17 @@ jobs:
         echo "VERSION=$VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+    - name: Extract build tools version
+      id: extract_build_tools
+      run: |
+        BUILD_TOOLS_VERSION=$(grep -m 1 'ENV BUILD_TOOLS' Dockerfile | cut -d '=' -f2 | tr -d '"')
+        echo "BUILD_TOOLS_VERSION=$BUILD_TOOLS_VERSION"
+        echo "BUILD_TOOLS_VERSION=$BUILD_TOOLS_VERSION" >> $GITHUB_ENV
+
     - name: Build Docker image
       run: |
         docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }} .
         docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:latest .
-
 
     - name: Push Docker image
       run: |
@@ -70,17 +76,6 @@ jobs:
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.TRIGGER_REPO_TOKEN }}" \
           $TARGET_REPO \
-          -d '{"event_type": "triggered-from-build", "client_payload": {"version": "${{ env.VERSION }}"}}'
+          -d '{"event_type": "docker-image-updated", "client_payload": {"version": "${{ env.VERSION }}", "build_tools_version": "${{ env.BUILD_TOOLS_VERSION }}"}}'
       env:
-        TARGET_REPO: "https://api.github.com/mahmoudazaid/android-images/dispatches"
-
-    - name: Trigger appium-device-farm Repository Workflow
-      if: success()
-      run: |
-        curl -X POST \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${{ secrets.TRIGGER_REPO_TOKEN }}" \
-          $TARGET_REPO \
-          -d '{"event_type": "triggered-from-build", "client_payload": {"version": "${{ env.VERSION }}"}}'
-      env:
-        TARGET_REPO: "https://api.github.com/mahmoudazaid/appium-device-farm/dispatches"
+        TARGET_REPO: "https://api.github.com/repos/mahmoudazaid/android-images/dispatches"
