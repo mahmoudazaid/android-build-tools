@@ -60,6 +60,11 @@ jobs:
         docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }} .
         docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:latest .
 
+    - name: Run Docker Scout to scan the image for vulnerabilities
+      run: |
+        docker scout start ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }}
+        docker scout start ${{ env.DOCKER_USERNAME }}/android-build-tools:latest
+
     - name: Push Docker image
       run: |
         docker push ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }}
