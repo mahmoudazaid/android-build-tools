@@ -74,7 +74,7 @@ jobs:
         docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }} .
         docker build -t ${{ env.DOCKER_USERNAME }}/android-build-tools:latest .
 
-    - name: Install Docker Scout v${{ env.DOCKER_SCOUT }}
+    - name: Install Docker Scout ${{ env.DOCKER_SCOUT }}
       run: |
         curl -fsSL ${{ env.DOCKER_SCOUT }} | tar xz -C /usr/local/bin
         sudo ln -s /usr/local/bin/docker-scout /usr/bin/scout
@@ -82,8 +82,8 @@ jobs:
 
     - name: Run Docker Scout to scan the image for vulnerabilities
       run: |
-        docker-scout start ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }}
-        docker-scout start ${{ env.DOCKER_USERNAME }}/android-build-tools:latest
+        docker-scout image scan ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ env.VERSION }}
+        docker-scout image scan ${{ env.DOCKER_USERNAME }}/android-build-tools:latest
 
     - name: Push Docker image
       run: |
