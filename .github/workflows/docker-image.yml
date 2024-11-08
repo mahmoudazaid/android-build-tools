@@ -28,8 +28,9 @@ jobs:
       uses: actions/checkout@${{ env.CHECKOUT_ACTION_VERSION }}
 
     - name: Set version and build tools version
+      id: set_version
       run: |
-        # Check if version is provided from workflow dispatch or repository dispatch
+        # Set VERSION based on input from the dispatch event or workflow dispatch
         if [[ -n "${{ github.event.inputs.version }}" ]]; then
           echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
         elif [[ -n "${{ github.event.client_payload.version }}" ]]; then
@@ -39,7 +40,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
         fi
 
-        # Set build tools version from payload
+        # Set BUILD_TOOLS_VERSION from the payload
         echo "BUILD_TOOLS_VERSION=${{ github.event.client_payload.build_tools_version }}" >> $GITHUB_ENV
         echo "ANDROID_BUILD_TOOLS_VERSION=${{ env.VERSION }}" >> $GITHUB_ENV
         echo "IMAGE_TAG=${{ env.VERSION }}" >> $GITHUB_ENV
