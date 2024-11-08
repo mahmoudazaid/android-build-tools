@@ -72,7 +72,7 @@ jobs:
           https://api.github.com/repos/target-owner/target-repo/dispatches \
           -d '{"event_type": "triggered-from-build", "client_payload": {"version": "${{ env.VERSION }}"}}'
       env:
-        TARGET_REPO: "https://api.github.com/mahmoudazaid/android-images"
+        TARGET_REPO: "https://api.github.com/mahmoudazaid/android-images/dispatches"
 
     - name: Trigger appium-device-farm Repository Workflow
       if: success()
@@ -83,4 +83,4 @@ jobs:
           https://api.github.com/repos/target-owner/target-repo/dispatches \
           -d '{"event_type": "triggered-from-build", "client_payload": {"version": "${{ env.VERSION }}"}}'
       env:
-        TARGET_REPO: "https://api.github.com/mahmoudazaid/appium-device-farm"
+        TARGET_REPO: "https://api.github.com/mahmoudazaid/appium-device-farm/dispatches"
