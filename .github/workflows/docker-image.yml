@@ -19,10 +19,6 @@ jobs:
     env:
       DOCKER_USERNAME: "mahmoudazaid"
       DOCKER_SCOUT_VERSION: "1.15.0" # Docker Scout version
-      ANDROID_BUILD_TOOLS_VERSION: "${{ env.VERSION }}" # Set Android Build Tools version to match Dockerfile version
-      IMAGE_TAG: "${{ github.event.inputs.version }}" # Default to latest from the workflow dispatch
-      VERSION: "${{ env.IMAGE_TAG }}" # Version from dispatch or input
-      BUILD_TOOLS_VERSION: "${{ github.event.client_payload.build_tools_version }}" # Extracted build-tools version from the payload
       CHECKOUT_ACTION_VERSION: "v4" # actions/checkout version
       BUILDX_ACTION_VERSION: "v3" # docker/setup-buildx-action version
       LOGIN_ACTION_VERSION: "v3" # docker/login-action version
@@ -30,6 +26,23 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@${{ env.CHECKOUT_ACTION_VERSION }}
+
+    - name: Set version and build tools version
+      run: |
+        # Check if version is provided from workflow dispatch or repository dispatch
+        if [[ -n "${{ github.event.inputs.version }}" ]]; then
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+        elif [[ -n "${{ github.event.client_payload.version }}" ]]; then
+          echo "VERSION=${{ github.event.client_payload.version }}" >> $GITHUB_ENV
+        else
+          VERSION="latest"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        fi
+
+        # Set build tools version from payload
+        echo "BUILD_TOOLS_VERSION=${{ github.event.client_payload.build_tools_version }}" >> $GITHUB_ENV
+        echo "ANDROID_BUILD_TOOLS_VERSION=${{ env.VERSION }}" >> $GITHUB_ENV
+        echo "IMAGE_TAG=${{ env.VERSION }}" >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@${{ env.BUILDX_ACTION_VERSION }}
@@ -57,13 +70,6 @@ jobs:
         fi
         echo "VERSION=$VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-    - name: Extract build tools version
-      id: extract_build_tools
-      run: |
-        BUILD_TOOLS_VERSION=$(grep -m 1 'ENV BUILD_TOOLS' Dockerfile | cut -d '=' -f2 | tr -d '"')
-        echo "BUILD_TOOLS_VERSION=$BUILD_TOOLS_VERSION"
-        echo "BUILD_TOOLS_VERSION=$BUILD_TOOLS_VERSION" >> $GITHUB_ENV
 
     - name: Build Docker image
       run: |
