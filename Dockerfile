@@ -6,11 +6,26 @@ ENV DEBIAN_FRONTEND noninteractive
 WORKDIR /
 
 #=============================
-# Install Dependencies 
+# Install Dependencies and Clean Up
 #=============================
 SHELL ["/bin/bash", "-c"]   
 
-RUN apt update && apt install tzdata -y curl sudo wget unzip bzip2 libdrm-dev libxkbcommon-dev libgbm-dev libasound-dev libnss3 libxcursor1 libpulse-dev libxshmfence-dev xauth xvfb x11vnc fluxbox wmctrl libdbus-glib-1-2
+RUN apt update && apt install -y \
+    tzdata \
+    curl \
+    wget \
+    unzip \
+    bzip2 \
+    libdrm-dev \
+    libxkbcommon-dev \
+    libgbm-dev \
+    libnss3 \
+    libpulse-dev \
+    xauth \
+    xvfb \
+    libdbus-glib-1-2 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 #==============================
 # Android SDK ARGS
@@ -38,8 +53,8 @@ RUN chmod a+x /tmp/install-android-cmd-tools.sh && \
 #====================================
 # Run Scripts
 #====================================
-RUN /tmp/install-android-cmd-tools.sh --ANDROID_HOME $ANDROID_HOME --ANDROID_CMD $ANDROID_CMD
-RUN /tmp/install-sdk-packages.sh --ANDROID_SDK_PACKAGES $ANDROID_SDK_PACKAGES
+RUN /tmp/install-android-cmd-tools.sh --ANDROID_HOME $ANDROID_HOME --ANDROID_CMD $ANDROID_CMD && \
+    /tmp/install-sdk-packages.sh --ANDROID_SDK_PACKAGES $ANDROID_SDK_PACKAGES
 
 #====================================
 # Clean up the scripts
