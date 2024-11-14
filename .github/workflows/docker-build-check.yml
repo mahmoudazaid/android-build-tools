@@ -29,18 +29,22 @@ jobs:
         username: ${{ env.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and Push Multi-Architecture Docker Image
+    - name: Build Multi-Architecture Docker Image and Export as OCI Tar
       run: |
         docker buildx build \
           --platform linux/amd64,linux/arm64/v8 \
           -t ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ github.sha }} \
           -t ${{ env.DOCKER_USERNAME }}/android-build-tools:latest \
-          --push .
+          --output type=oci,dest=/tmp/android-build-tools.tar .
+
+    - name: Load Docker Image from OCI Tar
+      run: |
+        cat /tmp/android-build-tools.tar | docker import - mahmoudazaid/android-build-tools:${{ github.sha }}
 
     - name: Test Docker Image on linux/amd64
       run: |
         echo "Testing Docker image on linux/amd64"
-        docker run --platform linux/amd64 -d --name test-android-build-tools-amd64 ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ github.sha }}
+        docker run --platform linux/amd64 -d --name test-android-build-tools-amd64 mahmoudazaid/android-build-tools:${{ github.sha }}
         sleep 10
         docker ps -a
         docker logs test-android-build-tools-amd64
@@ -50,7 +54,7 @@ jobs:
     - name: Test Docker Image on linux/arm64/v8
       run: |
         echo "Testing Docker image on linux/arm64/v8"
-        docker run --platform linux/arm64/v8 -d --name test-android-build-tools-arm64 ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ github.sha }}
+        docker run --platform linux/arm64/v8 -d --name test-android-build-tools-arm64 mahmoudazaid/android-build-tools:${{ github.sha }}
         sleep 10
         docker ps -a
         docker logs test-android-build-tools-arm64
