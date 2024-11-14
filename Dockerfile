@@ -1,4 +1,4 @@
-FROM openjdk:openjdk:24-jdk-slim
+FROM openjdk:24-jdk-slim
 
 ENV BUILD_TOOLS="35.0.0"
 ENV DEBIAN_FRONTEND noninteractive
