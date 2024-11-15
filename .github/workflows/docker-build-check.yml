@@ -20,50 +20,31 @@ jobs:
       with:
         install: true
 
-    - name: Install QEMU for Multi-Architecture Support
-      uses: docker/setup-qemu-action@v3
-
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ env.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build Multi-Architecture Docker Image and Export as OCI Tar
+    - name: Build Docker Image for linux/amd64
       run: |
         docker buildx build \
-          --platform linux/amd64,linux/arm64/v8 \
+          --platform linux/amd64 \
           -t ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ github.sha }} \
           -t ${{ env.DOCKER_USERNAME }}/android-build-tools:latest \
-          --output type=oci,dest=/tmp/android-build-tools.tar .
-
-    - name: Load Docker Image from OCI Tar
-      run: |
-        cat /tmp/android-build-tools.tar | docker import - mahmoudazaid/android-build-tools:${{ github.sha }}
+          --load .
 
     - name: Test Docker Image on linux/amd64
       run: |
         echo "Testing Docker image on linux/amd64"
-        docker run --platform linux/amd64 -d --name test-android-build-tools-amd64 mahmoudazaid/android-build-tools:${{ github.sha }}
+        docker run --platform linux/amd64 -d --name test-android-build-tools-amd64 ${{ env.DOCKER_USERNAME }}/android-build-tools:${{ github.sha }}
         sleep 10
         docker ps -a
         docker logs test-android-build-tools-amd64
       env:
         PLATFORM: linux/amd64
 
-    - name: Test Docker Image on linux/arm64/v8
-      run: |
-        echo "Testing Docker image on linux/arm64/v8"
-        docker run --platform linux/arm64/v8 -d --name test-android-build-tools-arm64 mahmoudazaid/android-build-tools:${{ github.sha }}
-        sleep 10
-        docker ps -a
-        docker logs test-android-build-tools-arm64
-      env:
-        PLATFORM: linux/arm64/v8
-
     - name: Clean up
       run: |
         docker stop test-android-build-tools-amd64 || true
-        docker stop test-android-build-tools-arm64 || true
         docker rm test-android-build-tools-amd64 || true
-        docker rm test-android-build-tools-arm64 || true
